@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TCC Creative Ad Performance Report | March 12–19</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; color: #1e293b; line-height: 1.5; }
+  .container { max-width: 1440px; margin: 0 auto; padding: 24px; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #fff; padding: 40px 48px; border-radius: 16px; margin-bottom: 32px; }
+  .header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .header .subtitle { color: #94a3b8; font-size: 16px; margin-top: 4px; }
+  .header .date-badge { display: inline-block; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; margin-top: 12px; }
+
+  /* KPI Legend */
+  .legend { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; padding: 16px 24px; background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: #16a34a; }
+  .dot-yellow { background: #ca8a04; }
+  .dot-red { background: #dc2626; }
+  .dot-gray { background: #9ca3af; }
+
+  /* Summary Cards */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .stat-card .label { font-size: 13px; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+  .stat-card .detail { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+  .stat-card.highlight { border-left: 4px solid #16a34a; }
+
+  /* Chart */
+  .chart-container { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 32px; }
+  .chart-container h2 { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+  .chart-wrapper { position: relative; height: 400px; }
+
+  /* Sections */
+  .section { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 32px; }
+  .section h2 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .section .section-desc { font-size: 14px; color: #64748b; margin-bottom: 20px; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead th { background: #f8fafc; padding: 12px 16px; text-align: left; font-weight: 600; color: #475569; border-bottom: 2px solid #e2e8f0; white-space: nowrap; cursor: pointer; user-select: none; position: sticky; top: 0; }
+  thead th:hover { background: #f1f5f9; }
+  thead th .sort-arrow { font-size: 10px; margin-left: 4px; opacity: 0.4; }
+  tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.15s; }
+  tbody tr:hover { background: #f8fafc; }
+  tbody td { padding: 12px 16px; white-space: nowrap; }
+  td.name-col { white-space: normal; min-width: 220px; max-width: 360px; font-weight: 500; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* KPI Badges */
+  .kpi-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 13px; }
+  .kpi-green { background: #dcfce7; color: #15803d; }
+  .kpi-yellow { background: #fef9c3; color: #a16207; }
+  .kpi-red { background: #fee2e2; color: #dc2626; }
+  .kpi-na { background: #f3f4f6; color: #9ca3af; }
+
+  /* View Ad Button */
+  .view-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 8px; background: #eff6ff; color: #2563eb; font-size: 13px; font-weight: 500; text-decoration: none; transition: all 0.15s; border: 1px solid #bfdbfe; }
+  .view-btn:hover { background: #dbeafe; border-color: #93c5fd; }
+  .view-btn svg { width: 14px; height: 14px; }
+
+  /* Tabs */
+  .tab-bar { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 0; }
+  .tab-btn { padding: 10px 20px; border: none; background: none; font-size: 14px; font-weight: 500; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; border-radius: 8px 8px 0 0; transition: all 0.2s; white-space: nowrap; }
+  .tab-btn:hover { color: #1e293b; background: #f8fafc; }
+  .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; font-weight: 600; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Footer */
+  .footer { text-align: center; padding: 24px; color: #94a3b8; font-size: 13px; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .container { padding: 12px; }
+    .header { padding: 24px; }
+    .header h1 { font-size: 22px; }
+    .section { padding: 20px; }
+    .legend { flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <h1>TCC Creative Ad Performance Report</h1>
+  <div class="subtitle">Weekly Creative Performance Analysis</div>
+  <div class="date-badge">March 12 – 19</div>
+</div>
+
+<!-- KPI Legend -->
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot dot-green"></span> CPQA Under $500 — Within KPI</div>
+  <div class="legend-item"><span class="legend-dot dot-yellow"></span> CPQA $500–$600 — On the Fence</div>
+  <div class="legend-item"><span class="legend-dot dot-red"></span> CPQA Above $600 — Outside KPI</div>
+  <div class="legend-item"><span class="legend-dot dot-gray"></span> No Qualified Applications</div>
+</div>
+
+<!-- CPQA Chart -->
+<div class="chart-container">
+  <h2>Cost Per Qualified Application by Concept</h2>
+  <div class="chart-wrapper"><canvas id="cpqaChart"></canvas></div>
+</div>
+
+<!-- Tabbed Sections -->
+<div class="section">
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="video-concepts">Video Concepts</button>
+    <button class="tab-btn" data-tab="video-variations">Video Variations</button>
+    <button class="tab-btn" data-tab="static-concepts">Static Concepts</button>
+    <button class="tab-btn" data-tab="static-variations">Static Variations</button>
+    <button class="tab-btn" data-tab="copy">Copy</button>
+  </div>
+  <div class="tab-panel active" id="panel-video-concepts">
+    <div class="section-desc">Aggregated performance by video creative concept</div>
+    <div class="table-wrap"><table id="table-video-concepts"></table></div>
+  </div>
+  <div class="tab-panel" id="panel-video-variations">
+    <div class="section-desc">Individual video ad variation performance</div>
+    <div class="table-wrap"><table id="table-video-variations"></table></div>
+  </div>
+  <div class="tab-panel" id="panel-static-concepts">
+    <div class="section-desc">Aggregated performance by static image concept</div>
+    <div class="table-wrap"><table id="table-static-concepts"></table></div>
+  </div>
+  <div class="tab-panel" id="panel-static-variations">
+    <div class="section-desc">Individual static ad variation performance</div>
+    <div class="table-wrap"><table id="table-static-variations"></table></div>
+  </div>
+  <div class="tab-panel" id="panel-copy">
+    <div class="section-desc">Performance by headline and body copy combinations</div>
+    <div class="table-wrap"><table id="table-copy"></table></div>
+  </div>
+</div>
+
+<div class="footer">TCC Creative Data Report — March 12–19</div>
+</div>
+
+<script>
+// ======================== DATA ========================
+
+const VIDEO_CONCEPTS = [
+  { name: 'VV22_SebastianAI', cost: 2787.77, leads: 15, cpl: 185.85, qa: 9, cpqa: 309.75, mql: 9, sql: 5, customers: 3, hookRate: '30.27%', holdRate: '25.61%', ctrAll: '1.01%', ctrLink: '0.63%', cpm: 42.93, impressions: 64941, plays3s: 19658, thruPlays: 5035, link: 'https://next.frame.io/share/b0b37871-dd5b-41f4-8c47-eca5fa01e29a/d43ee3f6-3b90-49fd-ab80-852a196cf70b' },
+  { name: 'ThisIsWhatHappens', cost: 8687.82, leads: 42, cpl: 206.85, qa: 19, cpqa: 457.25, mql: 9, sql: 7, customers: 4, hookRate: '52.45%', holdRate: '8.52%', ctrAll: '1.36%', ctrLink: '0.92%', cpm: 34.01, impressions: 255450, plays3s: 133974, thruPlays: 11409, link: 'https://next.frame.io/share/1f39ce8c-61a2-4596-9ada-1405a682c0a1/716784be-4e52-44a7-ac27-69cce90cec20' },
+  { name: 'VV13_WaterBomb', cost: 2667.75, leads: 13, cpl: 205.21, qa: 6, cpqa: 444.63, mql: 5, sql: 3, customers: 1, hookRate: '—', holdRate: '—', ctrAll: '0.84%', ctrLink: '0.54%', cpm: 46.57, impressions: 57283, plays3s: 0, thruPlays: 0, link: 'https://www.facebook.com/100083296204313/posts/858165880303278/' },
+  { name: 'VV23_EverytimeYouHire', cost: 2682.76, leads: 10, cpl: 268.28, qa: 5, cpqa: 536.55, mql: 0, sql: 0, customers: 0, hookRate: '15.50%', holdRate: '17.57%', ctrAll: '0.71%', ctrLink: '0.44%', cpm: 48.36, impressions: 55479, plays3s: 8601, thruPlays: 1511, link: 'https://next.frame.io/share/fcd43e36-7f0a-4cd1-bcdb-fab8cc1c410b/7401bd0d-8d58-47d1-9aea-222c85e120c9' },
+  { name: 'VV12_3ReasonsWhy', cost: 3599.66, leads: 12, cpl: 299.97, qa: 6, cpqa: 599.94, mql: 7, sql: 4, customers: 6, hookRate: '32.52%', holdRate: '17.68%', ctrAll: '0.85%', ctrLink: '0.48%', cpm: 37.04, impressions: 97179, plays3s: 31605, thruPlays: 5588, link: 'https://next.frame.io/share/1e00ff8a-0ed8-449a-b131-e2510562a565/view/47d7fc61-c306-4544-b6b4-a51c9cdcd2fd' },
+  { name: 'VV8_EasierThanThat', cost: 2442.80, leads: 8, cpl: 305.35, qa: 3, cpqa: 814.27, mql: 4, sql: 5, customers: 1, hookRate: '38.18%', holdRate: '7.83%', ctrAll: '0.70%', ctrLink: '0.39%', cpm: 40.83, impressions: 59822, plays3s: 22839, thruPlays: 1789, link: 'https://next.frame.io/share/fefdb890-ff88-4761-acd7-e362f0708019/view/863fd463-35f1-47a8-937e-042d21a2bbe8' },
+  { name: 'VB21_TheYearYouFinallyFix', cost: 799.80, leads: 3, cpl: 266.60, qa: 1, cpqa: 799.80, mql: 1, sql: 0, customers: 0, hookRate: '24.72%', holdRate: '18.63%', ctrAll: '1.19%', ctrLink: '0.74%', cpm: 49.98, impressions: 16002, plays3s: 3955, thruPlays: 737, link: 'https://next.frame.io/share/9663817b-88c6-49c2-8d1d-f6442e87bc04/view/4663ad0f-4b66-4d1f-a4e2-f4e57dbfa55b' },
+  { name: 'VB19_NewBackPocket', cost: 909.95, leads: 3, cpl: 303.32, qa: 1, cpqa: 909.95, mql: 1, sql: 0, customers: 0, hookRate: '29.58%', holdRate: '12.03%', ctrAll: '0.85%', ctrLink: '0.51%', cpm: 46.72, impressions: 19478, plays3s: 5761, thruPlays: 693, link: 'https://next.frame.io/share/9663817b-88c6-49c2-8d1d-f6442e87bc04/view/d850f26f-8bb6-4b07-9853-6f5fe9f8d9d0' },
+  { name: 'VB20_WhatIsLike', cost: 1344.63, leads: 2, cpl: 672.32, qa: 1, cpqa: 1344.63, mql: 1, sql: 0, customers: 0, hookRate: '24.81%', holdRate: '12.27%', ctrAll: '1.05%', ctrLink: '0.70%', cpm: 44.77, impressions: 30035, plays3s: 7451, thruPlays: 914, link: 'https://next.frame.io/share/9663817b-88c6-49c2-8d1d-f6442e87bc04/view/f1a9054c-f966-4141-b6e7-8db92a26fff7' },
+  { name: 'VV1_5ReasonsWhy', cost: 3233.96, leads: 0, cpl: null, qa: 0, cpqa: null, mql: 3, sql: 0, customers: 0, hookRate: '37.03%', holdRate: '8.41%', ctrAll: '1.29%', ctrLink: '0.95%', cpm: 37.03, impressions: 87331, plays3s: 32339, thruPlays: 2720, link: 'https://next.frame.io/share/fefdb890-ff88-4761-acd7-e362f0708019/4900fcd4-f56f-45e1-a975-1c417864f3c2' },
+  { name: 'VV9_ItsImpossible', cost: 382.63, leads: 0, cpl: null, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '23.79%', holdRate: '29.18%', ctrAll: '0.85%', ctrLink: '0.49%', cpm: 51.58, impressions: 7418, plays3s: 1765, thruPlays: 515, link: null },
+  { name: 'VV10_YouSuck', cost: 20.83, leads: 0, cpl: null, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '13.64%', holdRate: '23.00%', ctrAll: '0.55%', ctrLink: '0.27%', cpm: 28.42, impressions: 733, plays3s: 100, thruPlays: 23, link: null },
+];
+
+const STATIC_CONCEPTS = [
+  { name: 'SV18_BlackText', cost: 8431.39, leads: 36, cpl: 234.21, qa: 23, cpqa: 366.58, mql: 23, sql: 8, customers: 1, ctrAll: '0.88%', ctrLink: '0.48%', cpm: 38.12, impressions: 221204, link: 'https://drive.google.com/file/d/1FsEalnb0X11Oj3adANNOun7ubCf-X7Rn/view?usp=drive_link' },
+];
+
+const COPY_DATA = [
+  { name: 'CHK2_TiredOfWastingHours | CB2_KingsRansom', cost: 22933.72, leads: 104, cpl: 220.52, qa: 58, cpqa: 395.41, mql: 41, cpmql: 559.36, sql: 22, cpsql: 1042.44, customers: 11, cac: 2084.88, ctrAll: '1.04%', ctrLink: '0.65%', cpm: 38.57, impressions: 594622 },
+  { name: 'CHK10_WeDareYou | CB6_GreatHiringPartner1', cost: 1665.18, leads: 5, cpl: 333.04, qa: 3, cpqa: 555.06, mql: 3, cpmql: 555.06, sql: 0, cpsql: null, customers: 0, cac: null, ctrAll: '1.03%', ctrLink: '0.64%', cpm: 43.44, impressions: 38332 },
+  { name: 'CHK33_ItAlwaysStarts | CB10_ABlackHole', cost: 3909.08, leads: 13, cpl: 300.70, qa: 6, cpqa: 651.51, mql: 3, cpmql: 1303.03, sql: 4, cpsql: 977.27, customers: 1, cac: 3909.08, ctrAll: '1.11%', ctrLink: '0.75%', cpm: 40.90, impressions: 95584 },
+  { name: 'CHK31_HowManyHours | CB8_WhatFloodsIn', cost: 5426.82, leads: 13, cpl: 417.45, qa: 5, cpqa: 1085.36, mql: 3, cpmql: 1808.94, sql: 2, cpsql: 2713.41, customers: 2, cac: 2713.41, ctrAll: '1.06%', ctrLink: '0.69%', cpm: 34.06, impressions: 159351 },
+  { name: 'CHK11_HeresWhy$1M+ | CB7_GreatHiringPartner2', cost: 1389.20, leads: 3, cpl: 463.07, qa: 0, cpqa: null, mql: 0, cpmql: null, sql: 0, cpsql: null, customers: 0, cac: null, ctrAll: '1.01%', ctrLink: '0.67%', cpm: 51.11, impressions: 27183 },
+];
+
+const VIDEO_VARIATIONS = [
+  { name: 'Animated - ThisIsWhatHappens - Hook 13', cost: 2092.36, leads: 16, qa: 9, cpqa: 232.48, mql: 4, sql: 1, customers: 0, hookRate: '58.89%', holdRate: '8.50%', impressions: 74984, link: 'https://next.frame.io/share/1f39ce8c-61a2-4596-9ada-1405a682c0a1/716784be-4e52-44a7-ac27-69cce90cec20' },
+  { name: 'VHK94_EverHired | VB29_Control | VV22_SebastianAI', cost: 2787.77, leads: 15, qa: 9, cpqa: 309.75, mql: 9, sql: 5, customers: 3, hookRate: '30.27%', holdRate: '25.61%', impressions: 64941, link: 'https://next.frame.io/share/b0b37871-dd5b-41f4-8c47-eca5fa01e29a/d43ee3f6-3b90-49fd-ab80-852a196cf70b' },
+  { name: 'VHK111_Hook12 | VB28_Animated | VV20_ThisIsWhatHappens', cost: 3391.96, leads: 18, qa: 10, cpqa: 339.20, mql: 5, sql: 2, customers: null, hookRate: '54.43%', holdRate: '6.83%', impressions: 67399, link: 'https://next.frame.io/share/962976e3-4b3c-4021-adeb-ae26db23997b/view/06129182-4286-42d5-8fed-41fce500fc33' },
+  { name: 'VHK115_Hook1AI | VB28_Animated | VV23_EverytimeYouHire', cost: 1326.03, leads: 7, qa: 3, cpqa: 442.01, mql: 1, sql: 0, customers: 0, hookRate: '14.87%', holdRate: '17.99%', impressions: 21797, link: 'https://next.frame.io/share/fcd43e36-7f0a-4cd1-bcdb-fab8cc1c410b/7401bd0d-8d58-47d1-9aea-222c85e120c9' },
+  { name: 'VHK102_ElectricalNewHook1 | VB27_New3RW | VV12_3ReasonsWhy', cost: 3117.39, leads: 12, qa: 6, cpqa: 519.57, mql: 7, sql: 2, customers: 4, hookRate: '31.52%', holdRate: '18.95%', impressions: 79797, link: 'https://next.frame.io/share/1e00ff8a-0ed8-449a-b131-e2510562a565/view/47d7fc61-c306-4544-b6b4-a51c9cdcd2fd' },
+  { name: 'VHK116_Hook2HU | VB28_Animated | VV23_EverytimeYouHire', cost: 540.89, leads: 2, qa: 1, cpqa: 540.89, mql: 1, sql: 0, customers: 0, hookRate: '16.14%', holdRate: '15.38%', impressions: 12605, link: 'https://next.frame.io/share/fcd43e36-7f0a-4cd1-bcdb-fab8cc1c410b/e5d84ef9-e576-4cf2-b1c3-a50cf04d0872' },
+  { name: 'VHK117_Hook2AI | VB28_Animated | VV23_EverytimeYouHire', cost: 707.91, leads: 1, qa: 1, cpqa: 707.91, mql: 0, sql: 0, customers: 0, hookRate: '17.64%', holdRate: '18.47%', impressions: 17191, link: 'https://next.frame.io/share/fcd43e36-7f0a-4cd1-bcdb-fab8cc1c410b/c1521226-2b40-43ce-a423-76f61cc426ff' },
+  { name: 'VHK69_RegularCTA | VB21_TheYearYouFinallyFix | VV15', cost: 799.80, leads: 3, qa: 1, cpqa: 799.80, mql: 1, sql: 0, customers: 0, hookRate: '24.72%', holdRate: '18.63%', impressions: 16002, link: 'https://next.frame.io/share/9663817b-88c6-49c2-8d1d-f6442e87bc04/view/4663ad0f-4b66-4d1f-a4e2-f4e57dbfa55b' },
+  { name: 'VHK20_DidntYouSay | VB9_Control | VV8_EasierThanThat', cost: 2442.80, leads: 8, qa: 3, cpqa: 814.27, mql: 4, sql: 4, customers: 0, hookRate: '38.18%', holdRate: '7.83%', impressions: 59822, link: 'https://next.frame.io/share/fefdb890-ff88-4761-acd7-e362f0708019/view/863fd463-35f1-47a8-937e-042d21a2bbe8' },
+  { name: 'VHK69_RegularCTA | VB19_NewBackPocket | VV15', cost: 909.95, leads: 3, qa: 1, cpqa: 909.95, mql: 1, sql: 0, customers: 0, hookRate: '29.58%', holdRate: '12.03%', impressions: 19478, link: 'https://next.frame.io/share/9663817b-88c6-49c2-8d1d-f6442e87bc04/view/d850f26f-8bb6-4b07-9853-6f5fe9f8d9d0' },
+  { name: 'VHK69_RegularCTA | VB20_WhatIsLike | VV15', cost: 1344.63, leads: 2, qa: 1, cpqa: 1344.63, mql: 1, sql: 0, customers: 0, hookRate: '24.81%', holdRate: '12.27%', impressions: 30035, link: 'https://next.frame.io/share/9663817b-88c6-49c2-8d1d-f6442e87bc04/view/f1a9054c-f966-4141-b6e7-8db92a26fff7' },
+  { name: 'VHK93_Hook3 | VB28_Animated | VV20_ThisIsWhatHappens', cost: 903.28, leads: 2, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 1, hookRate: '46.20%', holdRate: '10.85%', impressions: 48634, link: 'https://next.frame.io/share/2ec984a2-a8f6-42dd-a6e9-740a7cb1778b/view/95e4f4cd-f996-4987-9ee5-9f912cb36423' },
+  { name: 'Animated - ThisIsWhatHappens - Hook 14', cost: 840.88, leads: 3, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '50.65%', holdRate: '12.18%', impressions: 22059, link: 'https://next.frame.io/share/1f39ce8c-61a2-4596-9ada-1405a682c0a1/67343eaa-39c9-4c51-9021-1c8f2e3b54d5' },
+  { name: 'VHK98_Hook7 | VB28_Animated | VV20_ThisIsWhatHappens', cost: 416.93, leads: 1, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '48.57%', holdRate: '6.58%', impressions: 12927, link: 'https://next.frame.io/share/4571e325-2311-4034-b38c-05e33c0d4a45/dc364637-6409-4565-8da7-fe1a188ff583' },
+  { name: 'VHK108_Hook9 | VB28_Animated | VV20_ThisIsWhatHappens', cost: 389.08, leads: 0, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '43.80%', holdRate: '5.57%', impressions: 9960, link: 'https://next.frame.io/share/962976e3-4b3c-4021-adeb-ae26db23997b/view/b5164790-e0e3-4d2c-aedc-238f724f22e2' },
+  { name: 'VHK23_HVAC | VB10_Control | VV9_ItsImpossible', cost: 382.63, leads: 0, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '23.79%', holdRate: '29.18%', impressions: 7418, link: null },
+  { name: 'Animated - ThisIsWhatHappens - Hook 15', cost: 342.50, leads: 1, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '47.66%', holdRate: '9.31%', impressions: 9533, link: 'https://next.frame.io/share/1f39ce8c-61a2-4596-9ada-1405a682c0a1/287d4782-4bb8-4f99-a22e-d1fb0e95b44a' },
+  { name: 'VHK107_Hook8 | VB28_Animated | VV20_ThisIsWhatHappens', cost: 172.40, leads: 1, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '48.89%', holdRate: '6.14%', impressions: 4363, link: 'https://next.frame.io/share/962976e3-4b3c-4021-adeb-ae26db23997b/view/3b4fe4d6-563d-44fe-a8d0-9d4ca0004903' },
+  { name: 'VHK114_Hook1HU | VB28_Animated | VV23_EverytimeYouHire', cost: 107.93, leads: 0, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '7.54%', holdRate: '18.77%', impressions: 3886, link: 'https://next.frame.io/share/fcd43e36-7f0a-4cd1-bcdb-fab8cc1c410b/1c73d58b-76a5-49df-9a7c-12ef559ded23' },
+  { name: 'VHK109_Hook10 | VB28_Animated | VV20_ThisIsWhatHappens', cost: 90.34, leads: 0, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '37.25%', holdRate: '7.45%', impressions: 3855, link: 'https://next.frame.io/share/962976e3-4b3c-4021-adeb-ae26db23997b/view/9446251b-971a-4a66-8eb0-08d57f871580' },
+  { name: 'VHK2_Hook2StrugglingToHire | VB2_Short | VV1_5RW', cost: 79.30, leads: 0, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '14.06%', holdRate: '13.20%', impressions: 4688, link: 'https://next.frame.io/share/fefdb890-ff88-4761-acd7-e362f0708019/4900fcd4-f56f-45e1-a975-1c417864f3c2' },
+  { name: 'VHK110_Hook11 | VB28_Animated | VV20_ThisIsWhatHappens', cost: 48.09, leads: 0, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '42.45%', holdRate: '4.61%', impressions: 1736, link: 'https://next.frame.io/share/962976e3-4b3c-4021-adeb-ae26db23997b/view/f200aaef-8ba3-4330-890b-7416d84e676b' },
+  { name: 'VHK105_ElectricalNewHook2 | VB27_New3RW | VV12_3RW', cost: 45.28, leads: 0, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '19.93%', holdRate: '15.43%', impressions: 878, link: 'https://next.frame.io/share/1e00ff8a-0ed8-449a-b131-e2510562a565/view/4e548162-d367-49a2-8bde-2b0273fdc18f' },
+  { name: 'VHK92_Hook2 | VB27_New3RW | VV12_3ReasonsWhy', cost: 34.25, leads: 0, qa: 0, cpqa: null, mql: 0, sql: 1, customers: 1, hookRate: '17.85%', holdRate: '17.62%', impressions: 2162, link: 'https://next.frame.io/share/989b1c04-f75f-4cf4-be70-f0f77b557eeb/view/97292266-9ca4-44fe-964e-01bb187575fe' },
+  { name: 'VHK1_Hook1HereAre5RW | VB2_Short | VV1_5RW', cost: 27.87, leads: 0, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '17.06%', holdRate: '14.96%', impressions: 2351, link: 'https://next.frame.io/share/fefdb890-ff88-4761-acd7-e362f0708019/4900fcd4-f56f-45e1-a975-1c417864f3c2' },
+  { name: 'VHK23_HVAC | VB11_Control | VV10_YouSuck', cost: 20.83, leads: 0, qa: 0, cpqa: null, mql: 0, sql: 0, customers: 0, hookRate: '13.64%', holdRate: '23.00%', impressions: 733, link: null },
+];
+
+const STATIC_VARIATIONS = [
+  { name: 'SC54_WereHiringSystem | SV18_BlackText', cost: 8431.39, leads: 36, qa: 23, cpqa: 366.58, mql: 13, sql: 8, customers: 1, ctrAll: '0.88%', ctrLink: '0.48%', impressions: 221204, link: 'https://drive.google.com/file/d/1FsEalnb0X11Oj3adANNOun7ubCf-X7Rn/view?usp=drive_link' },
+];
+
+// ======================== UTILITIES ========================
+
+function fmt(n) { return n == null ? '—' : '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtInt(n) { return n == null ? '—' : n.toLocaleString('en-US'); }
+function fmtCostPer(cost, count) { return (count == null || count === 0) ? '—' : fmt(cost / count); }
+function kpiClass(cpqa) {
+  if (cpqa == null) return 'kpi-na';
+  if (cpqa < 500) return 'kpi-green';
+  if (cpqa <= 600) return 'kpi-yellow';
+  return 'kpi-red';
+}
+function kpiBadge(cpqa) {
+  return `<span class="kpi-badge ${kpiClass(cpqa)}">${cpqa == null ? 'N/A' : fmt(cpqa)}</span>`;
+}
+function viewBtn(link) {
+  if (!link) return '<span style="color:#cbd5e1;font-size:13px">—</span>';
+  const icon = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/><path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/></svg>';
+  return `<a class="view-btn" href="${link}" target="_blank" rel="noopener">${icon} View Ad</a>`;
+}
+
+// ======================== TABLE RENDERING ========================
+
+function renderTable(tableId, headers, rows) {
+  const table = document.getElementById(tableId);
+  const headerRow = headers.map((h, i) => `<th onclick="sortTableBy('${tableId}',${i},'${h.type || 'str'}')">${h.label} <span class="sort-arrow">&#x25B2;&#x25BC;</span></th>`).join('');
+  const bodyRows = rows.map(r => '<tr>' + r.map((c, i) => {
+    const cls = headers[i].align === 'right' ? ' class="num"' : (headers[i].align === 'name' ? ' class="name-col"' : '');
+    return `<td${cls}>${c}</td>`;
+  }).join('') + '</tr>').join('');
+  table.innerHTML = `<thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody>`;
+}
+
+function sortTableBy(tableId, colIndex, type) {
+  const table = document.getElementById(tableId);
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const dir = table.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+  table.dataset.sortDir = dir;
+  rows.sort((a, b) => {
+    let av = a.children[colIndex].textContent.trim();
+    let bv = b.children[colIndex].textContent.trim();
+    if (type === 'num') {
+      av = parseFloat(av.replace(/[$,%,—,N\/A]/g, '').replace(/,/g, '')) || -Infinity;
+      bv = parseFloat(bv.replace(/[$,%,—,N\/A]/g, '').replace(/,/g, '')) || -Infinity;
+    }
+    if (av < bv) return dir === 'asc' ? -1 : 1;
+    if (av > bv) return dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+
+// ======================== RENDER SECTIONS ========================
+
+function renderCPQAChart() {
+  const allConcepts = [...VIDEO_CONCEPTS, ...STATIC_CONCEPTS].filter(d => d.qa > 0).sort((a, b) => a.cpqa - b.cpqa);
+  const labels = allConcepts.map(d => d.name);
+  const values = allConcepts.map(d => d.cpqa);
+  const colors = values.map(v => v < 500 ? '#16a34a' : v <= 600 ? '#ca8a04' : '#dc2626');
+
+  new Chart(document.getElementById('cpqaChart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 6, barThickness: 28 }] },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.x.toLocaleString('en-US', { minimumFractionDigits: 2 }) } },
+        annotation: { annotations: { line1: { type: 'line', xMin: 500, xMax: 500, borderColor: '#94a3b8', borderWidth: 2, borderDash: [6, 4], label: { content: '$500 KPI', display: true, position: 'start', backgroundColor: '#64748b', font: { size: 11 } } } } }
+      },
+      scales: {
+        x: { grid: { color: '#f1f5f9' }, ticks: { callback: v => '$' + v.toLocaleString() } },
+        y: { grid: { display: false }, ticks: { font: { size: 12 } } }
+      }
+    },
+    plugins: [{
+      id: 'kpiLine',
+      afterDraw(chart) {
+        const xScale = chart.scales.x;
+        const x = xScale.getPixelForValue(500);
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(x, chart.chartArea.top);
+        ctx.lineTo(x, chart.chartArea.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#64748b';
+        ctx.font = '11px system-ui';
+        ctx.fillText('$500 KPI', x + 4, chart.chartArea.top + 14);
+        ctx.restore();
+      }
+    }]
+  });
+}
+
+function renderVideoConcepts() {
+  const headers = [
+    { label: 'Concept', align: 'name', type: 'str' },
+    { label: 'View Ad', align: 'left', type: 'str' },
+    { label: 'Cost', align: 'right', type: 'num' },
+    { label: 'Leads', align: 'right', type: 'num' },
+    { label: 'QA', align: 'right', type: 'num' },
+    { label: 'CPQA', align: 'right', type: 'num' },
+    { label: 'MQL', align: 'right', type: 'num' },
+    { label: 'CPMQL', align: 'right', type: 'num' },
+    { label: 'SQL', align: 'right', type: 'num' },
+    { label: 'CPSQL', align: 'right', type: 'num' },
+    { label: 'Customers', align: 'right', type: 'num' },
+    { label: 'CAC', align: 'right', type: 'num' },
+    { label: 'Hook Rate', align: 'right', type: 'num' },
+    { label: 'Hold Rate', align: 'right', type: 'num' },
+    { label: 'Impressions', align: 'right', type: 'num' },
+  ];
+  const rows = VIDEO_CONCEPTS.map(d => [
+    d.name, viewBtn(d.link), fmt(d.cost), fmtInt(d.leads), fmtInt(d.qa), kpiBadge(d.cpqa),
+    fmtInt(d.mql), fmtCostPer(d.cost, d.mql), fmtInt(d.sql), fmtCostPer(d.cost, d.sql),
+    fmtInt(d.customers), fmtCostPer(d.cost, d.customers),
+    d.hookRate, d.holdRate, fmtInt(d.impressions)
+  ]);
+  renderTable('table-video-concepts', headers, rows);
+}
+
+function renderStaticConcepts() {
+  const headers = [
+    { label: 'Concept', align: 'name', type: 'str' },
+    { label: 'View Ad', align: 'left', type: 'str' },
+    { label: 'Cost', align: 'right', type: 'num' },
+    { label: 'Leads', align: 'right', type: 'num' },
+    { label: 'QA', align: 'right', type: 'num' },
+    { label: 'CPQA', align: 'right', type: 'num' },
+    { label: 'MQL', align: 'right', type: 'num' },
+    { label: 'CPMQL', align: 'right', type: 'num' },
+    { label: 'SQL', align: 'right', type: 'num' },
+    { label: 'CPSQL', align: 'right', type: 'num' },
+    { label: 'Customers', align: 'right', type: 'num' },
+    { label: 'CAC', align: 'right', type: 'num' },
+    { label: 'CTR (all)', align: 'right', type: 'num' },
+    { label: 'CTR (link)', align: 'right', type: 'num' },
+    { label: 'Impressions', align: 'right', type: 'num' },
+  ];
+  const rows = STATIC_CONCEPTS.map(d => [
+    d.name, viewBtn(d.link), fmt(d.cost), fmtInt(d.leads), fmtInt(d.qa), kpiBadge(d.cpqa),
+    fmtInt(d.mql), fmtCostPer(d.cost, d.mql), fmtInt(d.sql), fmtCostPer(d.cost, d.sql),
+    fmtInt(d.customers), fmtCostPer(d.cost, d.customers),
+    d.ctrAll, d.ctrLink, fmtInt(d.impressions)
+  ]);
+  renderTable('table-static-concepts', headers, rows);
+}
+
+function renderCopy() {
+  const headers = [
+    { label: 'Copy', align: 'name', type: 'str' },
+    { label: 'Cost', align: 'right', type: 'num' },
+    { label: 'Leads', align: 'right', type: 'num' },
+    { label: 'QA', align: 'right', type: 'num' },
+    { label: 'CPQA', align: 'right', type: 'num' },
+    { label: 'MQL', align: 'right', type: 'num' },
+    { label: 'CPMQL', align: 'right', type: 'num' },
+    { label: 'SQL', align: 'right', type: 'num' },
+    { label: 'CPSQL', align: 'right', type: 'num' },
+    { label: 'Customers', align: 'right', type: 'num' },
+    { label: 'CAC', align: 'right', type: 'num' },
+    { label: 'CTR (all)', align: 'right', type: 'num' },
+  ];
+  const rows = COPY_DATA.map(d => [
+    d.name, fmt(d.cost), fmtInt(d.leads), fmtInt(d.qa), kpiBadge(d.cpqa),
+    fmtInt(d.mql), fmt(d.cpmql), fmtInt(d.sql), fmt(d.cpsql),
+    fmtInt(d.customers), fmt(d.cac), d.ctrAll
+  ]);
+  renderTable('table-copy', headers, rows);
+}
+
+function renderVideoVariations() {
+  const headers = [
+    { label: 'Variation', align: 'name', type: 'str' },
+    { label: 'View Ad', align: 'left', type: 'str' },
+    { label: 'Cost', align: 'right', type: 'num' },
+    { label: 'Leads', align: 'right', type: 'num' },
+    { label: 'QA', align: 'right', type: 'num' },
+    { label: 'CPQA', align: 'right', type: 'num' },
+    { label: 'MQL', align: 'right', type: 'num' },
+    { label: 'CPMQL', align: 'right', type: 'num' },
+    { label: 'SQL', align: 'right', type: 'num' },
+    { label: 'CPSQL', align: 'right', type: 'num' },
+    { label: 'Customers', align: 'right', type: 'num' },
+    { label: 'CAC', align: 'right', type: 'num' },
+    { label: 'Hook Rate', align: 'right', type: 'num' },
+    { label: 'Hold Rate', align: 'right', type: 'num' },
+    { label: 'Impressions', align: 'right', type: 'num' },
+  ];
+  const rows = VIDEO_VARIATIONS.map(d => [
+    d.name, viewBtn(d.link), fmt(d.cost), fmtInt(d.leads), fmtInt(d.qa), kpiBadge(d.cpqa),
+    fmtInt(d.mql), fmtCostPer(d.cost, d.mql), fmtInt(d.sql), fmtCostPer(d.cost, d.sql),
+    fmtInt(d.customers), fmtCostPer(d.cost, d.customers),
+    d.hookRate, d.holdRate, fmtInt(d.impressions)
+  ]);
+  renderTable('table-video-variations', headers, rows);
+}
+
+function renderStaticVariations() {
+  const headers = [
+    { label: 'Variation', align: 'name', type: 'str' },
+    { label: 'View Ad', align: 'left', type: 'str' },
+    { label: 'Cost', align: 'right', type: 'num' },
+    { label: 'Leads', align: 'right', type: 'num' },
+    { label: 'QA', align: 'right', type: 'num' },
+    { label: 'CPQA', align: 'right', type: 'num' },
+    { label: 'MQL', align: 'right', type: 'num' },
+    { label: 'CPMQL', align: 'right', type: 'num' },
+    { label: 'SQL', align: 'right', type: 'num' },
+    { label: 'CPSQL', align: 'right', type: 'num' },
+    { label: 'Customers', align: 'right', type: 'num' },
+    { label: 'CAC', align: 'right', type: 'num' },
+    { label: 'CTR (all)', align: 'right', type: 'num' },
+    { label: 'CTR (link)', align: 'right', type: 'num' },
+    { label: 'Impressions', align: 'right', type: 'num' },
+  ];
+  const rows = STATIC_VARIATIONS.map(d => [
+    d.name, viewBtn(d.link), fmt(d.cost), fmtInt(d.leads), fmtInt(d.qa), kpiBadge(d.cpqa),
+    fmtInt(d.mql), fmtCostPer(d.cost, d.mql), fmtInt(d.sql), fmtCostPer(d.cost, d.sql),
+    fmtInt(d.customers), fmtCostPer(d.cost, d.customers),
+    d.ctrAll, d.ctrLink, fmtInt(d.impressions)
+  ]);
+  renderTable('table-static-variations', headers, rows);
+}
+
+// ======================== TABS ========================
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+// ======================== INIT ========================
+document.addEventListener('DOMContentLoaded', () => {
+  renderCPQAChart();
+  renderVideoConcepts();
+  renderVideoVariations();
+  renderStaticConcepts();
+  renderStaticVariations();
+  renderCopy();
+  initTabs();
+});
+</script>
+</body>
+</html>
